@@ -158,7 +158,7 @@ shock = np.zeros(T)
 shock[1]=shock_size
 
 for t in range (2,T):
- 
+    
 shock[t] = persistence * shock[t-1]
 
         if shock_type == "Demand":

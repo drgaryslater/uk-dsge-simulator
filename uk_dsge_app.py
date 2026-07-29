@@ -144,26 +144,32 @@ Select a preset scenario or build your own custom shock. The graphs show the mod
     )
 
     # -------------------------------------------------
-    # BASELINE PARAMETERS
+    # CALIBRATED TEACHING UNITS
     # -------------------------------------------------
+    # Units:
+    # y      = output gap, percentage points of potential GDP
+    # pi     = CPI inflation deviation from 2% target, percentage points
+    # rate   = Bank Rate deviation from baseline, percentage points
+    # q      = sterling depreciation, per cent. Positive = depreciation
+    # energy = energy price / cost shock, per cent
 
-    rho_y = 0.65
-    rho_pi = 0.70
-    rho_i = 0.80
-    rho_q = 0.65
+    rho_y = 0.60       # output-gap persistence
+    rho_pi = 0.65      # inflation persistence
+    rho_i = 0.80       # interest-rate smoothing
+    rho_q = 0.60       # exchange-rate persistence
 
-    alpha_r = 0.35
-    alpha_q = 0.20
-    alpha_energy_y = 0.25
+    # Transmission parameters in interpretable units
+    alpha_r = 0.30     # effect of 1 pp real rate rise on output gap
+    alpha_q = 0.03     # effect of 1% sterling depreciation on output gap
+    alpha_energy_y = 0.015  # output drag from 1% energy price increase
 
-    kappa = 0.18
-    gamma_q = 0.15
-    gamma_energy_pi = 0.65
+    kappa = 0.20       # Phillips curve: effect of 1 pp output gap on inflation
+    gamma_q = 0.025    # import-price pass-through: 1% depreciation -> inflation pp
+    gamma_energy_pi = 0.035  # 1% energy shock -> inflation pp
 
-    phi_pi = 1.50
-    phi_y = 0.40
-
-    eta_i = 0.25
+    phi_pi = 1.50      # Taylor-rule response to inflation
+    phi_y = 0.40       # Taylor-rule response to output gap
+    eta_i = 0.80       # interest-rate effect on exchange rate
 
     shock_persistence = 0.70
     shock_size = 1.0
@@ -171,46 +177,56 @@ Select a preset scenario or build your own custom shock. The graphs show the mod
     shock_sign = 1.0
 
     # -------------------------------------------------
-    # PRESET SCENARIOS
+    # PRESET SCENARIOS WITH REAL ECONOMIC MAGNITUDES
     # -------------------------------------------------
 
     if scenario == "COVID demand contraction":
+        # A large temporary negative demand shock.
+        # Unit: percentage points of output gap.
         shock_type = "Demand"
-        shock_size = 2.0
+        shock_size = 4.0
         shock_sign = -1.0
         shock_persistence = 0.55
         phi_pi = 1.50
         phi_y = 0.50
 
     elif scenario == "2022 energy / cost-push inflation":
+        # A large and persistent energy-price shock.
+        # Unit: per cent energy price/cost increase.
         shock_type = "Energy"
-        shock_size = 1.8
+        shock_size = 40.0
         shock_sign = 1.0
-        shock_persistence = 0.85
+        shock_persistence = 0.80
         phi_pi = 1.70
         phi_y = 0.35
 
     elif scenario == "Monetary tightening":
+        # A direct increase in Bank Rate.
+        # Unit: percentage points.
         shock_type = "Monetary policy"
-        shock_size = 1.4
+        shock_size = 1.0
         shock_sign = 1.0
         shock_persistence = 0.65
         phi_pi = 2.20
         phi_y = 0.40
 
     elif scenario == "Sterling depreciation":
+        # A sterling depreciation.
+        # Unit: per cent depreciation.
         shock_type = "Exchange rate"
-        shock_size = 1.5
+        shock_size = 12.0
         shock_sign = 1.0
-        shock_persistence = 0.75
+        shock_persistence = 0.70
         phi_pi = 1.60
         phi_y = 0.40
 
     elif scenario == "Demand expansion":
+        # A positive demand shock.
+        # Unit: percentage points of output gap.
         shock_type = "Demand"
-        shock_size = 1.5
+        shock_size = 2.0
         shock_sign = 1.0
-        shock_persistence = 0.65
+        shock_persistence = 0.60
         phi_pi = 1.50
         phi_y = 0.50
 
@@ -237,13 +253,50 @@ Select a preset scenario or build your own custom shock. The graphs show the mod
             )
 
         with col2:
-            shock_size = st.slider(
-                "Shock size",
-                min_value=0.1,
-                max_value=3.0,
-                value=1.0,
-                step=0.1
-            )
+            if shock_type == "Demand":
+                shock_size = st.slider(
+                    "Demand shock: output-gap effect, percentage points",
+                    min_value=0.1,
+                    max_value=6.0,
+                    value=2.0,
+                    step=0.1
+                )
+
+            elif shock_type == "Energy":
+                shock_size = st.slider(
+                    "Energy shock: energy price increase, per cent",
+                    min_value=1.0,
+                    max_value=80.0,
+                    value=30.0,
+                    step=1.0
+                )
+
+            elif shock_type == "Cost-push":
+                shock_size = st.slider(
+                    "Cost-push shock: inflation effect, percentage points",
+                    min_value=0.1,
+                    max_value=5.0,
+                    value=1.0,
+                    step=0.1
+                )
+
+            elif shock_type == "Monetary policy":
+                shock_size = st.slider(
+                    "Monetary policy shock: Bank Rate change, percentage points",
+                    min_value=0.1,
+                    max_value=5.0,
+                    value=1.0,
+                    step=0.1
+                )
+
+            elif shock_type == "Exchange rate":
+                shock_size = st.slider(
+                    "Exchange-rate shock: sterling depreciation, per cent",
+                    min_value=1.0,
+                    max_value=30.0,
+                    value=10.0,
+                    step=1.0
+                )
 
         with col3:
             shock_persistence = st.slider(
@@ -292,7 +345,7 @@ Select a preset scenario or build your own custom shock. The graphs show the mod
                 "Phillips curve slope",
                 min_value=0.05,
                 max_value=0.50,
-                value=0.18,
+                value=0.20,
                 step=0.01
             )
 
@@ -337,6 +390,7 @@ Select a preset scenario or build your own custom shock. The graphs show the mod
     for t in range(1, T):
 
         # Monetary policy rule
+        # rate is in percentage points.
         rate[t] = (
             rho_i * rate[t - 1]
             + (1 - rho_i) * (phi_pi * pi[t - 1] + phi_y * y[t - 1])
@@ -344,7 +398,7 @@ Select a preset scenario or build your own custom shock. The graphs show the mod
         )
 
         # Exchange-rate equation
-        # Positive q = sterling depreciation
+        # q is per cent sterling depreciation. Positive q = depreciation.
         q[t] = (
             rho_q * q[t - 1]
             - eta_i * (rate[t] - rate[t - 1])
@@ -352,6 +406,7 @@ Select a preset scenario or build your own custom shock. The graphs show the mod
         )
 
         # Aggregate demand / IS equation
+        # y is output gap in percentage points of potential GDP.
         y[t] = (
             rho_y * y[t - 1]
             - alpha_r * (rate[t - 1] - pi[t - 1])
@@ -361,6 +416,7 @@ Select a preset scenario or build your own custom shock. The graphs show the mod
         )
 
         # Phillips curve
+        # pi is inflation deviation from the 2% target, in percentage points.
         pi[t] = (
             rho_pi * pi[t - 1]
             + kappa * y[t]

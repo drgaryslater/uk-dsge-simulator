@@ -446,19 +446,23 @@ Select a preset scenario or build your own custom shock. The graphs show the mod
 
     axs[0, 0].plot(y, linewidth=2)
     axs[0, 0].set_title("Output gap")
-    axs[0, 0].set_xlabel("Period")
+    axs[0, 0].set_ylabel("% of potential GDP")
+    axs[0, 0].set_xlabel("Quarter")
 
     axs[0, 1].plot(pi, linewidth=2)
-    axs[0, 1].set_title("Inflation")
-    axs[0, 1].set_xlabel("Period")
+    axs[0, 1].set_title("Inflation deviation from target")
+    axs[0, 1].set_ylabel("Percentage points")
+    axs[0, 1].set_xlabel("Quarter")
 
     axs[1, 0].plot(rate, linewidth=2)
     axs[1, 0].set_title("Policy interest rate")
-    axs[1, 0].set_xlabel("Period")
+    axs[1, 0].set_ylabel("Percentage points")
+    axs[1, 0].set_xlabel("Quarter")
 
     axs[1, 1].plot(q, linewidth=2)
-    axs[1, 1].set_title("Exchange rate")
-    axs[1, 1].set_xlabel("Period")
+    axs[1, 1].set_title("Sterling exchange rate")
+    axs[1, 1].set_ylabel("% depreciation")
+    axs[1, 1].set_xlabel("Quarter")
 
     for ax in axs.flat:
         ax.axhline(0, linestyle="--", linewidth=0.8)

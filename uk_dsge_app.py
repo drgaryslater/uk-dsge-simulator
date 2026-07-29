@@ -157,43 +157,43 @@ shock = np.zeros(T)
 
 shock[1]=shock_size
 
-for t in range (2,T):
-    
-        shock[t] = persistence * shock[t-1]
+for t in range(2, T):
 
-        if shock_type == "Demand":
-            y[t] = 0.8*y[t-1] + shock[t]
+    shock[t] = persistence * shock[t-1]
 
-        elif shock_type == "Cost-Push":
-            pi[t] = 0.8*pi[t-1] + shock[t]
+    if shock_type == "Demand":
+        y[t] = 0.8*y[t-1] + shock[t]
 
-        elif shock_type == "Monetary":
-            r[t] = 0.8*r[t-1] + shock[t]
-            y[t] = y[t] - 0.3*r[t]
+    elif shock_type == "Cost-Push":
+        pi[t] = 0.8*pi[t-1] + shock[t]
 
-        elif shock_type == "Exchange Rate":
-            q[t] = 0.8*q[t-1] + shock[t]
-            pi[t] = pi[t] + 0.2*q[t]
+    elif shock_type == "Monetary":
+        r[t] = 0.8*r[t-1] + shock[t]
+        y[t] = y[t] - 0.3*r[t]
 
-        pi[t] += 0.2*y[t]
+    elif shock_type == "Exchange Rate":
+        q[t] = 0.8*q[t-1] + shock[t]
+        pi[t] = pi[t] + 0.2*q[t]
 
-    fig, axs = plt.subplots(2,2, figsize=(10,6))
+    pi[t] += 0.2*y[t]
 
-    axs[0,0].plot(y)
-    axs[0,0].set_title("Output")
+fig, axs = plt.subplots(2,2, figsize=(10,6))
 
-    axs[0,1].plot(pi)
-    axs[0,1].set_title("Inflation")
+axs[0,0].plot(y)
+axs[0,0].set_title("Output")
 
-    axs[1,0].plot(r)
-    axs[1,0].set_title("Interest Rate")
+axs[0,1].plot(pi)
+axs[0,1].set_title("Inflation")
 
-    axs[1,1].plot(q)
-    axs[1,1].set_title("Exchange Rate")
+axs[1,0].plot(r)
+axs[1,0].set_title("Interest Rate")
 
-    plt.tight_layout()
+axs[1,1].plot(q)
+axs[1,1].set_title("Exchange Rate")
 
-    st.pyplot(fig)
+plt.tight_layout()
+
+st.pyplot(fig)
 
 # =====================================================
 # EXERCISES

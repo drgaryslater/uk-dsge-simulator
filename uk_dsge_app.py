@@ -159,7 +159,7 @@ shock[1]=shock_size
 
 for t in range (2,T):
     
-shock[t] = persistence * shock[t-1]
+        shock[t] = persistence * shock[t-1]
 
         if shock_type == "Demand":
             y[t] = 0.8*y[t-1] + shock[t]

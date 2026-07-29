@@ -43,8 +43,8 @@ Predict -> Simulate -> Explain
 # TABS
 # =====================================================
 
-tab1, tab2, tab3 = st.tabs(
-    ["Explanation", "Simulation", "Exercises"]
+ttab1, tab2, tab3, tab4 = st.tabs(
+    ["Explanation", "Simulation", "Exercises", "Validation"]
 )
 
 # =====================================================

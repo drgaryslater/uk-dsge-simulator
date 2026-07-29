@@ -154,10 +154,10 @@ pi = np.zeros(T)
 r = np.zeros(T)
 q = np.zeros(T)
 shock = np.zeros(T)
- 
-shock[1] = shock_size
- 
-for t in range(2, T):
+
+shock[1]=shock_size
+
+for t in range (2,T):
  
 shock[t] = persistence * shock[t-1]
 

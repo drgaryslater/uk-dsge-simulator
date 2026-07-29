@@ -635,154 +635,124 @@ associated with different shocks.
 
     st.markdown("---")
 
-    st.subheader("Interactive validation scoring")
+# -------------------------------------------------
+# SIMULATION SUMMARY
+# -------------------------------------------------
 
-    selected_validation_scenario = st.selectbox(
-        "Choose a scenario to score",
-        [
-            "COVID demand contraction",
-            "2022 energy / cost-push inflation",
-            "Monetary tightening",
-            "Sterling depreciation",
-            "Demand expansion"
-        ],
-        key="validation_scenario_selector"
-    )
+st.subheader("Simulation Summary")
 
-    st.markdown("""
-Score the model from **1** to **5** on each criterion.
+peak_inflation = np.max(pi)
+peak_output_gap = np.min(y)
+peak_rate = np.max(rate)
+peak_fx = np.max(q)
 
-- **1** = weak match
-- **3** = partial or mixed match
-- **5** = strong match
+inflation_peak_period = int(np.argmax(pi))
+output_trough_period = int(np.argmin(y))
+rate_peak_period = int(np.argmax(rate))
+fx_peak_period = int(np.argmax(q))
 
-Students should justify their scores using historical UK evidence.
+summary_table = {
+    "Metric": [
+        "Peak Inflation Deviation",
+        "Peak Output Gap",
+        "Peak Interest Rate",
+        "Peak Sterling Depreciation",
+        "Quarter of Inflation Peak",
+        "Quarter of Output Trough",
+        "Quarter of Peak Rate",
+        "Quarter of Peak FX Effect"
+    ],
+    "Value": [
+        round(float(peak_inflation),2),
+        round(float(peak_output_gap),2),
+        round(float(peak_rate),2),
+        round(float(peak_fx),2),
+        inflation_peak_period,
+        output_trough_period,
+        rate_peak_period,
+        fx_peak_period
+    ]
+}
+
+st.table(summary_table)
+
+st.subheader("Historical Comparison")
+comparison_table = {
+    "Scenario": [
+        "COVID demand contraction",
+        "2022 energy shock",
+        "Monetary tightening",
+        "Sterling depreciation",
+        "Demand expansion"
+    ],
+    "Expected UK Pattern": [
+        "Large negative output gap",
+        "High inflation and weak output",
+        "Higher rates then lower inflation",
+        "Imported inflation",
+        "Rising inflation from excess demand"
+    ],
+    "Key Variable to Examine": [
+        "Output Gap",
+        "Inflation",
+        "Interest Rate",
+        "Exchange Rate",
+        "Inflation"
+    ]
+}
+
+st.table(comparison_table)
+
+st.subheader("Interpretation")
+
+if shock_type == "Demand":
+    st.info("""
+Focus on output dynamics.
+
+Questions:
+
+• How large is the output loss?
+
+• How long does recovery take?
+
+• Is inflation response realistic?
 """)
 
-    c1, c2, c3 = st.columns(3)
+elif shock_type == "Energy":
+    st.info("""
+Focus on stagflation.
 
-    with c1:
-        direction_score = st.slider(
-            "Direction of response",
-            min_value=1,
-            max_value=5,
-            value=3,
-            key="direction_score"
-        )
+Questions:
 
-        magnitude_score = st.slider(
-            "Magnitude of response",
-            min_value=1,
-            max_value=5,
-            value=3,
-            key="magnitude_score"
-        )
+• Does inflation rise sufficiently?
 
-    with c2:
-        timing_score = st.slider(
-            "Timing and lags",
-            min_value=1,
-            max_value=5,
-            value=3,
-            key="timing_score"
-        )
+• Does output weaken?
 
-        policy_score = st.slider(
-            "Policy response",
-            min_value=1,
-            max_value=5,
-            value=3,
-            key="policy_score"
-        )
-
-    with c3:
-        historical_score = st.slider(
-            "Historical plausibility",
-            min_value=1,
-            max_value=5,
-            value=3,
-            key="historical_score"
-        )
-
-        limitations_score = st.slider(
-            "Recognition of model limitations",
-            min_value=1,
-            max_value=5,
-            value=3,
-            key="limitations_score"
-        )
-
-    overall_score = (
-        direction_score
-        + magnitude_score
-        + timing_score
-        + policy_score
-        + historical_score
-        + limitations_score
-    ) / 6
-
-    st.markdown("### Overall validation score")
-
-    st.metric(
-        label=f"Overall score for {selected_validation_scenario}",
-        value=f"{overall_score:.1f} / 5"
-    )
-
-    if overall_score >= 4.0:
-        st.success("""
-Strong validation. The model appears to capture the broad historical pattern
-reasonably well. The next step is to explain why the match is strong and what
-important features are still omitted.
+• Is the policy trade-off visible?
 """)
 
-    elif overall_score >= 3.0:
-        st.warning("""
-Partial validation. The model captures some important mechanisms but has
-limitations in magnitude, timing or historical interpretation. This is a useful
-basis for critical discussion.
+elif shock_type == "Monetary policy":
+    st.info("""
+Focus on policy transmission.
+
+Questions:
+
+• How quickly does output respond?
+
+• How quickly does inflation respond?
+
+• Are policy lags realistic?
 """)
 
-    else:
-        st.error("""
-Weak validation. The model does not yet provide a convincing representation of
-this historical episode. Consider whether the shock size, persistence or
-transmission parameters need to be adjusted.
+elif shock_type == "Exchange rate":
+    st.info("""
+Focus on imported inflation.
+
+Questions:
+
+• How large is exchange-rate pass-through?
+
+• Is inflation sensitivity plausible?
+
+• Does demand benefit from depreciation?
 """)
-
-    st.markdown("---")
-
-    st.subheader("Student justification")
-
-    validation_notes = st.text_area(
-        "Explain your score. What historical evidence supports your judgement?",
-        height=180,
-        key="validation_notes"
-    )
-
-    st.markdown("### Suggested prompts")
-
-    st.markdown("""
-Use these questions to structure your validation judgement:
-
-1. Did the model move inflation, output, interest rates and exchange rates in the expected direction?
-2. Were the simulated magnitudes plausible compared with the UK episode?
-3. Did the timing of the response look realistic?
-4. Did the policy response resemble the behaviour of the Bank of England?
-5. What important macroeconomic mechanisms are missing?
-6. Would a Post-Keynesian, structuralist or political economy interpretation challenge the model's explanation?
-""")
-
-    st.markdown("### Validation summary for export or discussion")
-
-    st.write("Scenario assessed:", selected_validation_scenario)
-    st.write("Direction score:", direction_score)
-    st.write("Magnitude score:", magnitude_score)
-    st.write("Timing score:", timing_score)
-    st.write("Policy score:", policy_score)
-    st.write("Historical plausibility score:", historical_score)
-    st.write("Limitations score:", limitations_score)
-    st.write("Overall validation score:", round(overall_score, 2))
-
-    if validation_notes:
-        st.write("Student justification:")
-        st.write(validation_notes)

@@ -573,3 +573,216 @@ Possible answers include:
 - sectoral supply chains;
 - productivity dynamics.
 """)
+
+# =====================================================
+# TAB 4: VALIDATION
+# =====================================================
+
+with tab4:
+
+    st.header("Validation comparison")
+
+    st.markdown("""
+This tab helps you assess whether the simulator produces plausible responses
+when compared with historical UK macroeconomic episodes.
+
+The purpose is not to produce exact forecasts. The purpose is to ask whether
+the model captures the main direction, timing, magnitude and policy trade-offs
+associated with different shocks.
+""")
+
+    st.subheader("Scenario comparison table")
+
+    validation_rows = [
+        {
+            "Scenario": "COVID demand contraction",
+            "Historical UK episode": "2020 recession and pandemic disruption",
+            "Expected historical pattern": "Output falls sharply; inflation pressure initially weakens; policy remains accommodative.",
+            "Model should show": "Negative output gap; weaker inflation pressure; limited or accommodative rate response.",
+            "Key validation question": "Does the model capture the fall in demand without overstating inflation?"
+        },
+        {
+            "Scenario": "2022 energy / cost-push inflation",
+            "Historical UK episode": "2021-23 inflation surge and energy-price shock",
+            "Expected historical pattern": "Inflation rises; real incomes weaken; output comes under pressure; Bank Rate rises.",
+            "Model should show": "Higher inflation, weaker output, and a policy-rate response.",
+            "Key validation question": "Does the model generate a credible stagflation-style trade-off?"
+        },
+        {
+            "Scenario": "Monetary tightening",
+            "Historical UK episode": "2022-25 tightening cycle",
+            "Expected historical pattern": "Bank Rate rises; output weakens with a lag; inflation falls later.",
+            "Model should show": "Immediate rate rise, weaker output, and delayed inflation moderation.",
+            "Key validation question": "Are the lags between rates, output and inflation plausible?"
+        },
+        {
+            "Scenario": "Sterling depreciation",
+            "Historical UK episode": "ERM exit, post-referendum depreciation, or other sterling shocks",
+            "Expected historical pattern": "Depreciation raises import-price pressure; inflation rises; demand effect is mixed.",
+            "Model should show": "Positive exchange-rate shock and higher inflation through import-price pass-through.",
+            "Key validation question": "Is exchange-rate pass-through too weak, too strong, or about right?"
+        },
+        {
+            "Scenario": "Demand expansion",
+            "Historical UK episode": "Demand-led overheating episode",
+            "Expected historical pattern": "Output rises above potential; inflation pressure builds; policy tightens.",
+            "Model should show": "Positive output gap, rising inflation and higher policy rate.",
+            "Key validation question": "Does the model generate inflation pressure from excess demand?"
+        }
+    ]
+
+    st.table(validation_rows)
+
+    st.markdown("---")
+
+    st.subheader("Interactive validation scoring")
+
+    selected_validation_scenario = st.selectbox(
+        "Choose a scenario to score",
+        [
+            "COVID demand contraction",
+            "2022 energy / cost-push inflation",
+            "Monetary tightening",
+            "Sterling depreciation",
+            "Demand expansion"
+        ],
+        key="validation_scenario_selector"
+    )
+
+    st.markdown("""
+Score the model from **1** to **5** on each criterion.
+
+- **1** = weak match
+- **3** = partial or mixed match
+- **5** = strong match
+
+Students should justify their scores using historical UK evidence.
+""")
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        direction_score = st.slider(
+            "Direction of response",
+            min_value=1,
+            max_value=5,
+            value=3,
+            key="direction_score"
+        )
+
+        magnitude_score = st.slider(
+            "Magnitude of response",
+            min_value=1,
+            max_value=5,
+            value=3,
+            key="magnitude_score"
+        )
+
+    with c2:
+        timing_score = st.slider(
+            "Timing and lags",
+            min_value=1,
+            max_value=5,
+            value=3,
+            key="timing_score"
+        )
+
+        policy_score = st.slider(
+            "Policy response",
+            min_value=1,
+            max_value=5,
+            value=3,
+            key="policy_score"
+        )
+
+    with c3:
+        historical_score = st.slider(
+            "Historical plausibility",
+            min_value=1,
+            max_value=5,
+            value=3,
+            key="historical_score"
+        )
+
+        limitations_score = st.slider(
+            "Recognition of model limitations",
+            min_value=1,
+            max_value=5,
+            value=3,
+            key="limitations_score"
+        )
+
+    overall_score = (
+        direction_score
+        + magnitude_score
+        + timing_score
+        + policy_score
+        + historical_score
+        + limitations_score
+    ) / 6
+
+    st.markdown("### Overall validation score")
+
+    st.metric(
+        label=f"Overall score for {selected_validation_scenario}",
+        value=f"{overall_score:.1f} / 5"
+    )
+
+    if overall_score >= 4.0:
+        st.success("""
+Strong validation. The model appears to capture the broad historical pattern
+reasonably well. The next step is to explain why the match is strong and what
+important features are still omitted.
+""")
+
+    elif overall_score >= 3.0:
+        st.warning("""
+Partial validation. The model captures some important mechanisms but has
+limitations in magnitude, timing or historical interpretation. This is a useful
+basis for critical discussion.
+""")
+
+    else:
+        st.error("""
+Weak validation. The model does not yet provide a convincing representation of
+this historical episode. Consider whether the shock size, persistence or
+transmission parameters need to be adjusted.
+""")
+
+    st.markdown("---")
+
+    st.subheader("Student justification")
+
+    validation_notes = st.text_area(
+        "Explain your score. What historical evidence supports your judgement?",
+        height=180,
+        key="validation_notes"
+    )
+
+    st.markdown("### Suggested prompts")
+
+    st.markdown("""
+Use these questions to structure your validation judgement:
+
+1. Did the model move inflation, output, interest rates and exchange rates in the expected direction?
+2. Were the simulated magnitudes plausible compared with the UK episode?
+3. Did the timing of the response look realistic?
+4. Did the policy response resemble the behaviour of the Bank of England?
+5. What important macroeconomic mechanisms are missing?
+6. Would a Post-Keynesian, structuralist or political economy interpretation challenge the model's explanation?
+""")
+
+    st.markdown("### Validation summary for export or discussion")
+
+    st.write("Scenario assessed:", selected_validation_scenario)
+    st.write("Direction score:", direction_score)
+    st.write("Magnitude score:", magnitude_score)
+    st.write("Timing score:", timing_score)
+    st.write("Policy score:", policy_score)
+    st.write("Historical plausibility score:", historical_score)
+    st.write("Limitations score:", limitations_score)
+    st.write("Overall validation score:", round(overall_score, 2))
+
+    if validation_notes:
+        st.write("Student justification:")
+        st.write(validation_notes)
